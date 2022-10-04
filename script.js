@@ -6,6 +6,7 @@ const ctx = cvs.getContext("2d");
 // GAME VARIABLES AND CONSTANTS
 
 const scale = 1.5;
+let frames = 0;
 
 // CHANGES
 
@@ -18,6 +19,26 @@ cvs.height = scale * cvs.height;
 
 const sprite = new Image();
 sprite.src = "spritesheet.png";
+
+
+// GAME STATES
+
+const state = {
+  current: 0,
+  getReady: 1,
+  game: 1,
+  over: 2
+}
+
+
+// GAME CONTROLS
+
+cvs.addEventListener("click", function (event) {
+  if (state.current == state.getReady) state.current = state.game;
+  else if (state.current == state.game) state.current = state.over;
+  else state.current = state.getReady;
+});
+
 
 // BACKGROUND
 
@@ -54,6 +75,7 @@ const fg = {
 }
 
 // BIRD OBJECT
+
 const bird = {
   animation: [
     { sX: 276, sY: 112 },
@@ -67,14 +89,21 @@ const bird = {
   h: 26,
 
   frame: 0,
+  period: 8,
 
   draw: function () {
     let bird = this.animation[this.frame];
     ctx.drawImage(sprite, bird.sX, bird.sY, this.w, this.h, this.x - this.w * scale / 2, this.y - this.h * scale / 2, this.w * scale, this.h * scale);
-  }
+  },
+
+  update: function () {
+    if (frames % this.period == 0) this.frame = this.frame + 1;
+    this.frame %= this.animation.length;
+  },
 }
 
 // GET READY TEMPLATE
+
 const getReady = {
   sX: 0,
   sY: 228,
@@ -84,12 +113,15 @@ const getReady = {
   y: 80 * scale,
 
   draw: function () {
-    ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w * scale, this.h * scale);
+    if (state.current == state.getReady) {
+      ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w * scale, this.h * scale);
+    }
   }
 }
 
 
 // GAME OVER TEMPLATE
+
 const gameOver = {
   sX: 175,
   sY: 228,
@@ -97,9 +129,10 @@ const gameOver = {
   h: 202,
   x: cvs.width / 2 - (225 / 2 * scale),
   y: 90 * scale,
-
   draw: function () {
-    ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w * scale, this.h * scale);
+    if (state.current == state.over) {
+      ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w * scale, this.h * scale);
+    }
   }
 }
 
@@ -113,14 +146,21 @@ function draw() {
   fg.draw();
   bird.draw();
   getReady.draw();
-  // gameOver.draw();
+  gameOver.draw();
 }
 
+// UPDATE FUNCTION
+function update() {
+  bird.update();
+}
 
 // LOOP FUNCTION
 
 function loop() {
+  frames++;
   draw();
+  update();
   requestAnimationFrame(loop);
 }
+
 loop();
