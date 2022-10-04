@@ -8,6 +8,10 @@ const ctx = cvs.getContext("2d");
 const scale = 1.5;
 let frames = 0;
 const period = 8;
+const gravity = 0.5 * scale;
+const jump = 4.5 * scale;
+let speed = 0;
+
 
 // CHANGES
 
@@ -34,21 +38,24 @@ const state = {
 
 // GAME CONTROLS
 
-// SPACE CONTROL
+// SPACE BAR CONTROL
 document.body.onkeyup = function (e) {
   if (e.keyCode == 32) {
-    if (state.current == state.getReady) state.current = state.game;
-    else if (state.current == state.game) state.current = state.over;
-    else state.current = state.getReady;
+    control();
   }
 }
 
 // MOUSE CONTROL
 cvs.addEventListener("click", function (event) {
-  if (state.current == state.getReady) state.current = state.game;
-  else if (state.current == state.game) state.current = state.over;
-  else state.current = state.getReady;
+  control();
 });
+
+// CONTROL FUNCTION
+function control() {
+  if (state.current == state.getReady) state.current = state.game;
+  else if (state.current == state.game) bird.flap();
+  else state.current = state.getReady;
+}
 
 
 // BACKGROUND
@@ -106,9 +113,21 @@ const bird = {
     ctx.drawImage(sprite, bird.sX, bird.sY, this.w, this.h, this.x - this.w * scale / 2, this.y - this.h * scale / 2, this.w * scale, this.h * scale);
   },
 
+  flap: function () {
+    speed = -jump;
+  },
+
   update: function () {
     if (frames % period == 0) this.frame = this.frame + 1;
     this.frame %= this.animation.length;
+
+    if (state.current == state.getReady) {
+      this.y = 150;
+    }
+    else {
+      speed += gravity;
+      this.y += speed;
+    }
   },
 }
 
