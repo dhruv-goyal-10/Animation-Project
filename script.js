@@ -53,6 +53,26 @@ const fg = {
   }
 }
 
+// BIRD OBJECT
+const bird = {
+  animation: [
+    { sX: 276, sY: 112 },
+    { sX: 276, sY: 139 },
+    { sX: 276, sY: 164 },
+    { sX: 276, sY: 139 }
+  ],
+  x: 50 * scale,
+  y: 150 * scale,
+  w: 34,
+  h: 26,
+
+  frame: 0,
+
+  draw: function () {
+    let bird = this.animation[this.frame];
+    ctx.drawImage(sprite, bird.sX, bird.sY, this.w, this.h, this.x - this.w * scale / 2, this.y - this.h * scale / 2, this.w * scale, this.h * scale);
+  }
+}
 
 // GET READY TEMPLATE
 const getReady = {
@@ -64,7 +84,7 @@ const getReady = {
   y: 80 * scale,
 
   draw: function () {
-      ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w * scale, this.h * scale);
+    ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w * scale, this.h * scale);
   }
 }
 
@@ -79,7 +99,7 @@ const gameOver = {
   y: 90 * scale,
 
   draw: function () {
-      ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w * scale, this.h * scale);
+    ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w * scale, this.h * scale);
   }
 }
 
@@ -91,7 +111,8 @@ function draw() {
   ctx.fillRect(0, 0, cvs.width, cvs.height);
   bg.draw();
   fg.draw();
-  // getReady.draw();
+  bird.draw();
+  getReady.draw();
   // gameOver.draw();
 }
 
