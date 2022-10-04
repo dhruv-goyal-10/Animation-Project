@@ -7,11 +7,14 @@ const ctx = cvs.getContext("2d");
 
 const scale = 1.5;
 let frames = 0;
-const period = 8;
+const period = 5;    // Bird flapping speed inversely
 const gravity = 0.25 * scale;
 const jump = 4.5 * scale;
 let speed = 0;
-
+const speedb = 1.5 * scale;
+const speedf = 4 * scale;
+const pipeFrequency = 50; // inversely proportional
+const pipeGap = 85; // directly proportional
 
 // CHANGES
 
@@ -68,8 +71,6 @@ const bg = {
   x: 0,
   y: cvs.height - 226 * scale,
 
-  dx: 1.5 * scale,
-
   // draw: function () {
   //   ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w * scale, this.h * scale);
 
@@ -77,14 +78,14 @@ const bg = {
   // },
 
   draw: function () {
-    for (var i = 0; i < 100; i++) {
+    for (let i = 0; i < 100; i++) {
       ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x + this.w * scale * i, this.y, this.w * scale, this.h * scale);
     }
   },
 
   update: function () {
     if (state.current == state.game) {
-      this.x -= this.dx;
+      this.x -= speedb;
     }
   }
 }
@@ -98,7 +99,6 @@ const fg = {
   h: 112,
   x: 0,
   y: cvs.height - 112 * scale,
-  dx: 3 * scale,
 
   // draw: function () {
   //   ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w * scale, this.h * scale);
@@ -107,14 +107,14 @@ const fg = {
   // },
 
   draw: function () {
-    for (var i = 0; i < 200; i++) {
+    for (let i = 0; i < 200; i++) {
       ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x + this.w * scale * i, this.y, this.w * scale, this.h * scale);
     }
   },
 
   update: function () {
     if (state.current == state.game) {
-      this.x -= this.dx;
+      this.x -= speedf;
     }
   }
 }
@@ -154,6 +154,59 @@ const bird = {
     else {
       speed += gravity;
       this.y += speed;
+    }
+  },
+}
+
+// PIPES
+
+const pipes = {
+  position: [],
+
+  top: {
+    sX: 553,
+    sY: 0
+  },
+  bottom: {
+    sX: 502,
+    sY: 0
+  },
+
+  w: 53,
+  h: 400,
+  maxYPos: -150,
+
+  draw: function () {
+    for (let i = 0; i < this.position.length; i++) {
+      let p = this.position[i];
+
+      let topYPos = p.y * scale;
+      let bottomYPos = (p.y + this.h + pipeGap) * scale;
+
+      ctx.drawImage(sprite, this.top.sX, this.top.sY, this.w, this.h, p.x, topYPos, this.w * scale, this.h * scale);
+
+      ctx.drawImage(sprite, this.bottom.sX, this.bottom.sY, this.w, this.h, p.x, bottomYPos, this.w * scale, this.h * scale);
+    }
+  },
+
+  update: function () {
+    if (state.current !== state.game) return;
+
+    if (frames % pipeFrequency == 0) {
+      this.position.push({
+        x: cvs.width,
+        y: this.maxYPos * (Math.random() + 1)
+      });
+    }
+    for (let i = 0; i < this.position.length; i++) {
+      let p = this.position[i];
+
+      let bottomPipeYPos = p.y + this.h + pipeGap;
+
+      p.x -= speedf;
+      if (p.x + this.w * scale <= 0) {
+        this.position.shift();
+      }
     }
   },
 }
@@ -198,18 +251,20 @@ const gameOver = {
 function draw() {
   ctx.fillStyle = "#42bff5";
   ctx.fillRect(0, 0, cvs.width, cvs.height);
-  bg.draw();
-  fg.draw();
-  bird.draw();
   getReady.draw();
   gameOver.draw();
+  bg.draw();
+  pipes.draw();
+  bird.draw();
+  fg.draw();
 }
 
 // UPDATE FUNCTION
 
 function update() {
-  bird.update();
   bg.update();
+  pipes.update();
+  bird.update();
   fg.update();
 }
 
