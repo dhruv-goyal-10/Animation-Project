@@ -8,7 +8,7 @@ const ctx = cvs.getContext("2d");
 const scale = 1.5;
 let frames = 0;
 const period = 8;
-const gravity = 0.5 * scale;
+const gravity = 0.25 * scale;
 const jump = 4.5 * scale;
 let speed = 0;
 
@@ -68,10 +68,24 @@ const bg = {
   x: 0,
   y: cvs.height - 226 * scale,
 
-  draw: function () {
-    ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w * scale, this.h * scale);
+  dx: 1.5 * scale,
 
-    ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x + this.w * scale, this.y, this.w * scale, this.h * scale);
+  // draw: function () {
+  //   ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w * scale, this.h * scale);
+
+  //   ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x + this.w * scale, this.y, this.w * scale, this.h * scale);
+  // },
+
+  draw: function () {
+    for (var i = 0; i < 100; i++) {
+      ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x + this.w * scale * i, this.y, this.w * scale, this.h * scale);
+    }
+  },
+
+  update: function () {
+    if (state.current == state.game) {
+      this.x -= this.dx;
+    }
   }
 }
 
@@ -84,11 +98,24 @@ const fg = {
   h: 112,
   x: 0,
   y: cvs.height - 112 * scale,
+  dx: 3 * scale,
+
+  // draw: function () {
+  //   ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w * scale, this.h * scale);
+
+  //   ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x + this.w * scale, this.y, this.w * scale, this.h * scale);
+  // },
 
   draw: function () {
-    ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x, this.y, this.w * scale, this.h * scale);
+    for (var i = 0; i < 200; i++) {
+      ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x + this.w * scale * i, this.y, this.w * scale, this.h * scale);
+    }
+  },
 
-    ctx.drawImage(sprite, this.sX, this.sY, this.w, this.h, this.x + this.w * scale, this.y, this.w * scale, this.h * scale);
+  update: function () {
+    if (state.current == state.game) {
+      this.x -= this.dx;
+    }
   }
 }
 
@@ -179,8 +206,11 @@ function draw() {
 }
 
 // UPDATE FUNCTION
+
 function update() {
   bird.update();
+  bg.update();
+  fg.update();
 }
 
 // LOOP FUNCTION
