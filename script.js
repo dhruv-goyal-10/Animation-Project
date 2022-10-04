@@ -7,6 +7,7 @@ const ctx = cvs.getContext("2d");
 
 const scale = 1.5;
 let frames = 0;
+const period = 8;
 
 // CHANGES
 
@@ -25,7 +26,7 @@ sprite.src = "spritesheet.png";
 
 const state = {
   current: 0,
-  getReady: 1,
+  getReady: 0,
   game: 1,
   over: 2
 }
@@ -33,6 +34,16 @@ const state = {
 
 // GAME CONTROLS
 
+// SPACE CONTROL
+document.body.onkeyup = function (e) {
+  if (e.keyCode == 32) {
+    if (state.current == state.getReady) state.current = state.game;
+    else if (state.current == state.game) state.current = state.over;
+    else state.current = state.getReady;
+  }
+}
+
+// MOUSE CONTROL
 cvs.addEventListener("click", function (event) {
   if (state.current == state.getReady) state.current = state.game;
   else if (state.current == state.game) state.current = state.over;
@@ -89,7 +100,6 @@ const bird = {
   h: 26,
 
   frame: 0,
-  period: 8,
 
   draw: function () {
     let bird = this.animation[this.frame];
@@ -97,7 +107,7 @@ const bird = {
   },
 
   update: function () {
-    if (frames % this.period == 0) this.frame = this.frame + 1;
+    if (frames % period == 0) this.frame = this.frame + 1;
     this.frame %= this.animation.length;
   },
 }
