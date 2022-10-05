@@ -211,7 +211,7 @@ const pipes = {
       let bottomPipeYPos = (p.y + this.h + pipeGap) * scale;
 
       // COLLISION DETECTION
-      
+
       // TOP PIPE
       if (bird.x + bird.radius > p.x && bird.x - bird.radius < p.x + this.w * scale && bird.y + bird.radius > p.y * scale && bird.y - bird.radius < p.y * scale + this.h * scale) {
         state.current = state.over;
@@ -225,7 +225,35 @@ const pipes = {
       p.x -= speedf;
       if (p.x + this.w * scale <= 0) {
         this.position.shift();
+        score.value += 1;
+        score.best = Math.max(score.value, score.best);
+        sessionStorage.setItem("best", score.best);
       }
+    }
+  },
+}
+
+// SCORE
+const score = {
+  best: parseInt(sessionStorage.getItem("best")) || 0,
+  value: 0,
+
+  draw: function () {
+    ctx.fillStyle = "#000";
+
+    if (state.current == state.game) {
+      ctx.lineWidth = 2;
+      ctx.font = "40px Comic Sans Ms";
+      ctx.fillText(this.value, cvs.width / 2, 50*scale);
+
+    } else if (state.current == state.over) {
+      // SCORE VALUE
+      ctx.font = "25px Comic Sans Ms";
+
+      ctx.fillText(this.value, 225*scale, 186*scale);
+      // BEST SCORE
+
+      ctx.fillText(this.best, 225*scale, 228*scale);
     }
   },
 }
@@ -276,6 +304,7 @@ function draw() {
   bird.draw();
   fg.draw();
   gameOver.draw();
+  score.draw();
 }
 
 // UPDATE FUNCTION
