@@ -134,6 +134,7 @@ const bird = {
   h: 26,
 
   frame: 0,
+  radius: 12 * scale,
 
   draw: function () {
     let bird = this.animation[this.frame];
@@ -145,17 +146,23 @@ const bird = {
   },
 
   update: function () {
-    if (frames % period == 0) this.frame = this.frame + 1;
+    if (frames % period == 0) this.frame += 1;
     this.frame %= this.animation.length;
 
     if (state.current == state.getReady) {
-      this.y = 150;
+      this.y = 150 * scale;
     }
     else {
       speed += gravity;
       this.y += speed;
     }
-  },
+    if (this.y + this.h * scale / 2 >= cvs.height - fg.h * scale) {
+      this.y = cvs.height - fg.h * scale - this.h * scale / 2;
+      if (state.current == state.game) {
+        state.current = state.over;
+      }
+    }
+  }
 }
 
 // PIPES
@@ -201,7 +208,19 @@ const pipes = {
     for (let i = 0; i < this.position.length; i++) {
       let p = this.position[i];
 
-      let bottomPipeYPos = p.y + this.h + pipeGap;
+      let bottomPipeYPos = (p.y + this.h + pipeGap) * scale;
+
+      // COLLISION DETECTION
+      
+      // TOP PIPE
+      if (bird.x + bird.radius > p.x && bird.x - bird.radius < p.x + this.w * scale && bird.y + bird.radius > p.y * scale && bird.y - bird.radius < p.y * scale + this.h * scale) {
+        state.current = state.over;
+      }
+
+      // BOTTOM PIPE
+      if (bird.x + bird.radius > p.x && bird.x - bird.radius < p.x + this.w * scale && bird.y + bird.radius > bottomPipeYPos && bird.y - bird.radius < bottomPipeYPos + this.h * scale) {
+        state.current = state.over;
+      }
 
       p.x -= speedf;
       if (p.x + this.w * scale <= 0) {
@@ -252,11 +271,11 @@ function draw() {
   ctx.fillStyle = "#42bff5";
   ctx.fillRect(0, 0, cvs.width, cvs.height);
   getReady.draw();
-  gameOver.draw();
   bg.draw();
   pipes.draw();
   bird.draw();
   fg.draw();
+  gameOver.draw();
 }
 
 // UPDATE FUNCTION
