@@ -38,10 +38,19 @@ const state = {
   over: 2
 }
 
+// START BUTTON LOCATION
+
+const startBtn = {
+  x: 120 * scale,
+  y: 263 * scale,
+  w: 83 * scale,
+  h: 29 * scale
+}
 
 // GAME CONTROLS
 
 // SPACE BAR CONTROL
+
 document.body.onkeyup = function (e) {
   if (e.keyCode == 32) {
     control();
@@ -49,15 +58,31 @@ document.body.onkeyup = function (e) {
 }
 
 // MOUSE CONTROL
+
 cvs.addEventListener("click", function (event) {
   control();
 });
 
 // CONTROL FUNCTION
+
 function control() {
   if (state.current == state.getReady) state.current = state.game;
-  else if (state.current == state.game) bird.flap();
-  else state.current = state.getReady;
+  else if (state.current == state.game) {
+    if (bird.y - bird.radius <= 0) return;
+    bird.flap();
+  }
+  else {
+    let rect = cvs.getBoundingClientRect();
+    let clickX = event.clientX - rect.left;
+    let clickY = event.clientY - rect.top;
+
+    if (clickX >= startBtn.x && clickX <= startBtn.x + startBtn.w && clickY >= startBtn.y && clickY <= startBtn.y + startBtn.h) {
+      pipes.reset();
+      bird.speedReset();
+      score.reset();
+      state.current = state.getReady;
+    }
+  }
 }
 
 
@@ -162,6 +187,9 @@ const bird = {
         state.current = state.over;
       }
     }
+  },
+  speedReset: function () {
+    speed = 0;
   }
 }
 
@@ -231,6 +259,9 @@ const pipes = {
       }
     }
   },
+  reset: function () {
+    this.position = [];
+  }
 }
 
 // SCORE
@@ -244,18 +275,20 @@ const score = {
     if (state.current == state.game) {
       ctx.lineWidth = 2;
       ctx.font = "40px Comic Sans Ms";
-      ctx.fillText(this.value, cvs.width / 2, 50*scale);
+      ctx.fillText(this.value, cvs.width / 2, 50 * scale);
 
     } else if (state.current == state.over) {
       // SCORE VALUE
       ctx.font = "25px Comic Sans Ms";
+      ctx.fillText(this.value, 225 * scale, 186 * scale);
 
-      ctx.fillText(this.value, 225*scale, 186*scale);
       // BEST SCORE
-
-      ctx.fillText(this.best, 225*scale, 228*scale);
+      ctx.fillText(this.best, 225 * scale, 228 * scale);
     }
   },
+  reset: function () {
+    this.value = 0;
+  }
 }
 
 // GET READY TEMPLATE
